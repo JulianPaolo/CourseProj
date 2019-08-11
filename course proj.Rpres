@@ -1,0 +1,95 @@
+Course Project: Shiny Application and Reproducible Pitch
+========================================================
+author:Julian Paolo S. Alejandro
+date: August 11, 2019
+autosize: true
+
+<style>
+.small-code pre code {
+  font-size: 0.8em;
+}
+.reveal .state-background {
+  background: lightblue;
+} 
+</style>
+
+Application Overview: Breast Cancer Tumor Prediction
+========================================================
+css: custom.css
+
+This shiny web application entitled, "Breast Cancer Tumor Prediction" enables user to predict the type of tumor associated with breast cancer whether it is **benign** or **malignant**. To give you a background. A **tumor** is an abnormal lump or growth of cells. 
+
+The prediction model was built using the rpart (recursive partitioning and regression trees) method on a training dataset comprised of 70% of the dataset. In addition to the prediction, the classification tree from which the prediction was derived is shown on the main panel including the Top 5 features that greatly contributes to the prediction.  
+
+Application Building: Breast Cancer Tumor Prediction
+========================================================
+class: small-code
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+suppressPackageStartupMessages(library(caret))
+suppressPackageStartupMessages(library(rpart))
+suppressPackageStartupMessages(library(e1071))
+suppressPackageStartupMessages(library(rattle))
+suppressPackageStartupMessages(library(rpart.plot))
+```
+
+A. Loading Data and Partitioning
+
+```{r one, echo=TRUE, message=FALSE, warnings=FALSE}
+data_tumor <- read.csv('breast_cancer_dataset.csv')
+inTrain <- createDataPartition(y=data_tumor$class, p = 0.7, list=FALSE)
+training <- data_tumor[inTrain,]; testing <- data_tumor[-inTrain,]
+str(data_tumor)
+```
+
+B. Model Development using **rpart** Method
+
+```{r two, echo=TRUE, message=FALSE, warnings=FALSE}
+tumor_model <- train(class ~ ., method="rpart", data=data_tumor)
+```
+
+Application Building: Breast Cancer Tumor Prediction
+========================================================
+class: small-code
+
+C. Classification Tree
+<center>
+```{r three, echo=TRUE, message=FALSE, warnings=FALSE}
+fancyRpartPlot(tumor_model$finalModel)
+```
+</center>
+
+Application Building: Breast Cancer Tumor Prediction
+========================================================
+class: small-code
+
+D. Variable Importance
+<center>
+```{r four, echo=TRUE, message=FALSE, warnings=FALSE}
+rpart_imp <- varImp(tumor_model, scale = FALSE)
+plot(rpart_imp, top = 5)
+```
+</center>
+
+Application Building: Breast Cancer Tumor Prediction
+========================================================
+class: small-code
+
+E. Running a Sample New Input
+```{r five, echo=TRUE, message=FALSE, warnings=FALSE}
+userInput <-data.frame(3,4,3,2,1,5,6,1,1)
+names(userInput)<-c("clump_thickness","uniformity_of_cell_size","uniformity_of_cell_shape",
+                    "marginal_adhesion","single_epithelial_cell_size","bare_nuclei",
+                    "bland_chromatin","normal_nucleoli","mitosis")
+levels(data_tumor$class)[predict(tumor_model,newdata=userInput)]
+```
+
+Breast Cancer Tumor Prediction Links
+========================================================
+
+Shiny Application:  
+https://jsalejandro.shinyapps.io/CourseProj/
+
+
+Github Repository:  
